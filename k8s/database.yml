@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod
+  labels:
+    app: ecommerce-mysql
+spec:
+  containers:
+  - name: mysql
+    image: devopsdeepdive/mysql
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: password123
+    ports:
+    - containerPort: 3306
