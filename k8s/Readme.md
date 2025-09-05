@@ -11,3 +11,8 @@ If you want to delete pods in a specific namespace, add the `-n` option, for exa
 ```bash
 kubectl delete pods --all -n your-namespace
 ```
+Apply multiple files together
+If the manifests are in separate files, e.g., frontend.yaml, backend.yaml, and mysql.yaml, you can run:
+
+bash
+kubectl apply -f frontend.yaml -f backend.yaml -f mysql.yaml
