@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: backend-replicaset
+  labels:
+    app: ecommerce-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ecommerce-backend
+  template:
+    metadata:
+      labels:
+        app: ecommerce-backend
+    spec:
+      containers:
+      - name: backend
+        image: devopsdeepdive/ecommerce-3tier_backend
+        ports:
+        - containerPort: 8080
