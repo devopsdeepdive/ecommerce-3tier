@@ -25,3 +25,19 @@ bash
 kubectl apply -f ./manifests-folder/
 ```
 This will also create all resources in one command.
+
+To delete all ReplicaSets in the current Kubernetes namespace with a single command, use:
+
+```bash
+kubectl delete replicasets --all
+```
+
+This command deletes all ReplicaSets regardless of labels or status in the current namespace.
+
+If you want to delete ReplicaSets in a specific namespace, add the `-n` option, for example:
+
+```bash
+kubectl delete replicasets --all -n your-namespace
+```
+
+Keep in mind that deleting ReplicaSets will also delete the pods managed by them.
