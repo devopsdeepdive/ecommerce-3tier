@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-pod
+  labels:
+    app: ecommerce-backend
+spec:
+  containers:
+  - name: backend
+    image: devopsdeepdive/ecommerce-3tier_backend
+    ports:
+    - containerPort: 8080
