@@ -1,0 +1,115 @@
+NAME      READY   STATUS    RESTARTS   AGE
+mysql-0   1/1     Running   0          4m10s
+controlplane:~$ kubectl exec -it mysql-0 -n mysql -- bash
+bash-5.1# exit
+exit
+controlplane:~$ ls
+filesystem  mysql.yml
+controlplane:~$ cat mysql.yml 
+# 1. Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mysql
+
+---
+
+# 2. Secret for MySQL Root Password
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: mysql
+type: Opaque
+data:
+  mysql-root-password: bXlzcWxyb290cHdk  # base64 of 'mysqlrootpwd'
+
+---
+
+# 3. PersistentVolume (only for local setups like Minikube/KillerKoda)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/data/mysql"  # Make sure this path exists on the host
+
+---
+
+# 4. PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: mysql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
+# 5. Headless Service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: mysql
+spec:
+  clusterIP: None
+  ports:
+    - port: 3306
+      name: mysql
+  selector:
+    app: mysql
+
+---
+
+# 6. StatefulSet to Run MySQL
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: mysql
+spec:
+  serviceName: "mysql"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+              name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-root-password
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
